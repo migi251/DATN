@@ -43,7 +43,7 @@ def test(path_input, path_output):
     model = model.to('cuda')
     model.eval()
     transform = build_transforms(
-        maxHeight=768, maxWidth=768, is_train=False)
+        maxHeight=512, maxWidth=512, is_train=False)
     list_image = glob.glob(path_input+'/*.jpg')
     for idx in tqdm(range(len(list_image))):
         path_image = list_image[idx]
@@ -62,5 +62,5 @@ def test(path_input, path_output):
 
 
 if __name__ == "__main__":
-    test('./data/total-text/Images/Test', 'output/total-text-768-81-0.4-200-768')
-    os.system('python Deteval.py total-text-768-81-0.4-200-768')
+    test('./data/total-text/Images/Test', 'output/total-text-768-81-0.4-200-512')
+    os.system('python Deteval.py total-text-768-81-0.4-200-512')

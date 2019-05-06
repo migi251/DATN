@@ -114,5 +114,5 @@ if __name__ == '__main__':
     # print(net(input).size())
     import torchsummary
     with torch.no_grad():
-        print(torchsummary.summary(net, (3, 768, 768), batch_size=1, device='cpu'))
+        print(torchsummary.summary(net, (3, 64, 64), batch_size=1, device='cpu'))
     exit()
