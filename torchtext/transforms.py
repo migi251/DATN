@@ -35,8 +35,8 @@ class RandomMirror(object):
             for polygon in polygons:
                 polygon.points[:, 0] = width - polygon.points[:, 0]
                 # for idx in range(len(polygon.points_char)):
-                    # polygon.points_char[idx][:, 0] = width - \
-                        # polygon.points_char[idx][:, 0]
+                # polygon.points_char[idx][:, 0] = width - \
+                # polygon.points_char[idx][:, 0]
 
         return image, polygons
 
@@ -126,9 +126,9 @@ class Rotate(object):
                 pts = np.vstack([x, y]).T
                 polygon.points = pts
                 # for idx in range(len(polygon.points_char)):
-                    # x, y = self.rotate(center, polygon.points_char[idx], angle)
-                    # pts = np.vstack([x, y]).T
-                    # polygon.points_char[idx] = pts
+                # x, y = self.rotate(center, polygon.points_char[idx], angle)
+                # pts = np.vstack([x, y]).T
+                # polygon.points_char[idx] = pts
 
         return img, polygons
 
@@ -187,10 +187,10 @@ class Padding(object):
                 polygon.points[:, 0] = polygon.points[:, 0] + left
                 polygon.points[:, 1] = polygon.points[:, 1] + top
                 # for idx in range(len(polygon.points_char)):
-                    # polygon.points_char[idx][:,
-                                            #  0] = polygon.points_char[idx][:, 0]+left
-                    # polygon.points_char[idx][:,
-                                            #  1] = polygon.points_char[idx][:, 1]+top
+                # polygon.points_char[idx][:,
+                #  0] = polygon.points_char[idx][:, 0]+left
+                # polygon.points_char[idx][:,
+                #  1] = polygon.points_char[idx][:, 1]+top
 
         return image, polygons
 
@@ -271,18 +271,36 @@ class RandomResizedLimitCrop(object):
             if h < img.shape[0] and w < img.shape[1]:
                 j = np.random.randint(0, img.shape[1] - w)
                 i = np.random.randint(0, img.shape[0] - h)
-                
+
                 return i, j, h, w
 
         # Fallback
-        
+
         w = min(img.shape[0], img.shape[1])
         i = (img.shape[0] - w) // 2
         j = (img.shape[1] - w) // 2
         return i, j, w, w
 
     def __call__(self, image, polygons=None):
-        i, j, h, w = self.get_params(image, self.scale, self.ratio)
+        height, width = image.shape[0], image.shape[1]
+        mask = np.zeros((height, width), dtype=np.uint8)
+        if polygons is not None:
+            for polygon in polygons:
+                cv2.fillPoly(mask, [polygon.points.astype(np.int32)], (1,), 1)
+        attempt = 0
+        min_overlap = [0.1, 0.3, 0.5, 0.7]
+        while attempt < 10:
+            i, j, h, w = self.get_params(image, self.scale, self.ratio)
+            overlap = mask[i:i+h, j:j+w] > 0
+            random_idx = np.random.randint(0, 4)
+            if np.sum(overlap) >= np.sum(mask > 0)*min_overlap[random_idx]:
+                break
+            attempt += 1
+        if attempt == 10:
+            h = min(height, width)
+            w = h
+            i = (height-h) // 2
+            j = (width-w) // 2
 
         cropped = image[i:i + h, j:j + w, :]
         scales = np.array([self.size[0] / w, self.size[1] / h])
@@ -322,7 +340,7 @@ class Resize(object):
             for polygon in polygons:
                 polygon.points = polygon.points * scales
                 # for idx in range(len(polygon.points_char)):
-                    # polygon.points_char[idx] = polygon.points_char[idx]*scales
+                # polygon.points_char[idx] = polygon.points_char[idx]*scales
 
         return image, polygons
 
@@ -348,6 +366,7 @@ class Augmentation(object):
 
     def __call__(self, image, polygons=None):
         return self.augmentation(image, polygons)
+
 
 class BaseTransform(object):
     def __init__(self, maxHeight, maxWidth, mean, std):
