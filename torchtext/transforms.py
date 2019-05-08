@@ -293,7 +293,7 @@ class RandomResizedLimitCrop(object):
             i, j, h, w = self.get_params(image, self.scale, self.ratio)
             overlap = mask[i:i+h, j:j+w] > 0
             random_idx = np.random.randint(0, 4)
-            if np.sum(overlap) >= np.sum(mask > 0)*min_overlap[random_idx]:
+            if np.sum(overlap) >= np.sum(mask)*min_overlap[random_idx]:
                 break
             attempt += 1
         if attempt == 10:
