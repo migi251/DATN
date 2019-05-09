@@ -94,7 +94,7 @@ class RandomBrightness(object):
 
 
 class Rotate(object):
-    def __init__(self, up=30):
+    def __init__(self, up=90):
         self.up = up
 
     def rotate(self, center, pt, theta):  # 二维图形学的旋转
