@@ -166,7 +166,7 @@ class Padding(object):
         self.fill = fill
 
     def __call__(self, image, polygons=None):
-        if np.random.randint(2):
+        if np.random.randint(5):
             return image, polygons
 
         height, width, depth = image.shape
