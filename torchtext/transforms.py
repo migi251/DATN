@@ -29,7 +29,7 @@ class RandomMirror(object):
         pass
 
     def __call__(self, image, polygons=None):
-        if np.random.randint(2):
+        if np.random.randint(5):
             image = np.ascontiguousarray(image[:, ::-1])
             _, width, _ = image.shape
             for polygon in polygons:
@@ -115,7 +115,14 @@ class Rotate(object):
     def __call__(self, img, polygons=None):
         if np.random.randint(2):
             return img, polygons
-        angle = np.random.normal(loc=0.0, scale=0.5) * self.up  # angle 按照高斯分布
+        # angle = np.random.normal(loc=0.0, scale=0.5) * self.up  # angle 按照高斯分布
+        r = np.random.uniform(0,1)
+        if r <=0.2:
+            angle = -90
+        elif r >=0.8:
+            angle = 90
+        else:
+            angle = 0
         rows, cols = img.shape[0:2]
         M = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1.0)
         img = cv2.warpAffine(img, M, (cols, rows), borderValue=[0, 0, 0])
@@ -353,13 +360,13 @@ class Augmentation(object):
         self.mean = mean
         self.std = std
         self.augmentation = Compose([
-            Padding(),
+            # Padding(),
             # RandomBrightness(),
             # RandomContrast(),
-            RandomMirror(),
+            # RandomMirror(),
             Rotate(),
             RandomResizedLimitCrop(
-                maxHeight=maxHeight, maxWidth=maxWidth, scale=(0.2, 1.0), ratio=(1/3., 3)),
+                maxHeight=maxHeight, maxWidth=maxWidth, scale=(0.1, 1.0), ratio=(0.3, 3)),
             # Resize(maxHeight=maxHeight, maxWidth=maxWidth),
             Normalize(mean, std)
         ])
