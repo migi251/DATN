@@ -29,7 +29,7 @@ class RandomMirror(object):
         pass
 
     def __call__(self, image, polygons=None):
-        if np.random.randint(5):
+        if np.random.randint(10):
             image = np.ascontiguousarray(image[:, ::-1])
             _, width, _ = image.shape
             for polygon in polygons:
@@ -113,29 +113,32 @@ class Rotate(object):
         return _x, -_y
 
     def __call__(self, img, polygons=None):
-        if np.random.randint(2):
-            return img, polygons
+        # if np.random.randint(2):
+        #     return img, polygons
         # angle = np.random.normal(loc=0.0, scale=0.5) * self.up  # angle 按照高斯分布
-        r = np.random.uniform(0,1)
-        if r <=0.2:
-            angle = -90
-        elif r >=0.8:
-            angle = 90
-        else:
-            angle = 0
         rows, cols = img.shape[0:2]
-        M = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1.0)
-        img = cv2.warpAffine(img, M, (cols, rows), borderValue=[0, 0, 0])
+        prob = np.random.uniform(0, 1)
+        if prob <= 0.2:
+            rtimes = 1
+            angle = 90
+        elif prob <= 0.4:
+            rtimes = 3
+            angle = 270
+        elif prob <=0.5:
+            rtimes = 2
+            angle = 180
+        else:
+            return img, polygons
+        for _ in range(rtimes):
+            img = np.rot90(img)
+        # M = cv2.getRotationMatrix2D((cols / 2, rows / 2), angle, 1.0)
+        # img = cv2.warpAffine(img, M, (cols, rows), borderValue=[0, 0, 0])
         center = cols / 2.0, rows / 2.0
         if polygons is not None:
             for polygon in polygons:
                 x, y = self.rotate(center, polygon.points, angle)
                 pts = np.vstack([x, y]).T
                 polygon.points = pts
-                # for idx in range(len(polygon.points_char)):
-                # x, y = self.rotate(center, polygon.points_char[idx], angle)
-                # pts = np.vstack([x, y]).T
-                # polygon.points_char[idx] = pts
 
         return img, polygons
 
@@ -364,9 +367,9 @@ class Augmentation(object):
             # RandomBrightness(),
             # RandomContrast(),
             # RandomMirror(),
-            Rotate(),
             RandomResizedLimitCrop(
                 maxHeight=maxHeight, maxWidth=maxWidth, scale=(0.1, 1.0), ratio=(0.3, 3)),
+            Rotate(),
             # Resize(maxHeight=maxHeight, maxWidth=maxWidth),
             Normalize(mean, std)
         ])
