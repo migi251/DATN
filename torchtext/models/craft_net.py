@@ -128,18 +128,18 @@ class CRAFTNet(nn.Module):
                 256*expansion/2 + 128*expansion, 128*expansion/2)
             self.merge2 = MergeUpsample(
                 128*expansion/2 + 64*expansion, 64*expansion/2)
-            self.merge1 = MergeUpsample(64*expansion/2 + 64, 64)
+            self.merge1 = MergeUpsample(64*expansion/2 + 64, 128)
             self.predict = nn.Sequential(
-                nn.Conv2d(64, 64, kernel_size=1, stride=1, padding=0),
+                nn.Conv2d(128, 128, kernel_size=1, stride=1, padding=0),
+                nn.BatchNorm2d(64),
+                nn.ReLU(inplace=True),
+                nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1),
                 nn.BatchNorm2d(64),
                 nn.ReLU(inplace=True),
                 nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
-                nn.BatchNorm2d(64),
-                nn.ReLU(inplace=True),
                 nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
-                nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1),
-                nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
-                nn.Conv2d(32, self.output_channel,
+                nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
+                nn.Conv2d(64, self.output_channel,
                           kernel_size=1, stride=1, padding=0)
             )
 
