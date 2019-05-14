@@ -121,25 +121,26 @@ class CRAFTNet(nn.Module):
                           kernel_size=1, stride=1, padding=0)
             )
         else:
-            self.deconv5 = Upsample(512*expansion, int(512*expansion/2), 2)
+            self.deconv5 = Upsample(
+                512*expansion, int(512*expansion/2), 2)  # 1024
             self.merge4 = MergeUpsample(
-                512*expansion/2+256*expansion, 256*expansion/2)
+                512*expansion/2+256*expansion, 256*expansion/2)  # 512
             self.merge3 = MergeUpsample(
-                256*expansion/2 + 128*expansion, 128*expansion/2)
+                256*expansion/2 + 128*expansion, 128*expansion/2)  # 256
             self.merge2 = MergeUpsample(
-                128*expansion/2 + 64*expansion, 64*expansion/2)
-            self.merge1 = MergeUpsample(64*expansion/2 + 64, 128)
+                128*expansion/2 + 64*expansion, 64*expansion/2)  # 128
+            self.merge1 = MergeUpsample(64*expansion/2 + 64, 64)
             self.predict = nn.Sequential(
-                nn.Conv2d(128, 128, kernel_size=1, stride=1, padding=0),
-                nn.BatchNorm2d(64),
-                nn.ReLU(inplace=True),
-                nn.Conv2d(128, 64, kernel_size=3, stride=1, padding=1),
+                nn.Conv2d(64, 64, kernel_size=1, stride=1, padding=0),
                 nn.BatchNorm2d(64),
                 nn.ReLU(inplace=True),
                 nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
+                nn.BatchNorm2d(64),
+                nn.ReLU(inplace=True),
                 nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
-                nn.Conv2d(64, 64, kernel_size=3, stride=1, padding=1),
-                nn.Conv2d(64, self.output_channel,
+                nn.Conv2d(64, 32, kernel_size=3, stride=1, padding=1),
+                nn.Conv2d(32, 32, kernel_size=3, stride=1, padding=1),
+                nn.Conv2d(32, self.output_channel,
                           kernel_size=1, stride=1, padding=0)
             )
 
@@ -157,9 +158,9 @@ class CRAFTNet(nn.Module):
 if __name__ == '__main__':
     import torch
     input = torch.randn((1, 3, 512, 512)).cuda()
-    net = CRAFTNet(backbone='vgg16').cuda()
+    net = CRAFTNet(backbone='se_resnext101_32x4d').cuda()
     print(net(input).size())
     import torchsummary
-    # with torch.no_grad():
-    print(torchsummary.summary(net, (3, 64, 64), batch_size=1,device='cuda'))
+    with torch.no_grad():
+        print(torchsummary.summary(net, (3, 512, 512), batch_size=1, device='cuda'))
     exit()
