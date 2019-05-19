@@ -368,7 +368,7 @@ class Augmentation(object):
             # RandomContrast(),
             RandomMirror(),
             RandomResizedLimitCrop(
-                maxHeight=maxHeight, maxWidth=maxWidth, scale=(0.2, 1.0), ratio=(0.3, 3)),
+                maxHeight=maxHeight, maxWidth=maxWidth, scale=(0.1, 1.0), ratio=(0.3, 3)),
             Rotate(),
             # Resize(maxHeight=maxHeight, maxWidth=maxWidth),
             Normalize(mean, std)

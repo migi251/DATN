@@ -45,7 +45,7 @@ def argument_parser():
                         help='optimization algorithm (see optimizers.py)')
     parser.add_argument('--lr', default=0.0003, type=float,
                         help='initial learning rate')
-    parser.add_argument('--weight-decay', default=5e-04, type=float,
+    parser.add_argument('--weight-decay', default=5e-06, type=float,
                         help='weight decay')   
     # sgd
     parser.add_argument('--momentum', default=0.9, type=float,
