@@ -221,68 +221,40 @@ def process_output(image, output, raw_img, threshold, min_area):
     merged_ending = np.zeros((height, width), np.float32)
     PI = np.pi
     for row in range(0, height):
-        mask_p = mask[row]
-        angle_p = angle[row]
-        parent_p = parent[row]
-        ending_p = ending[row]
         for col in range(0, width):
-            if mask_p[col] == 255:
-                if angle_p[col] < PI/8 or angle_p[col] >= 15*PI/8:
-                    parent_p[col][0] = 1
-                    parent_p[col][1] = 0
-                    if row+1 <= height-1:
-                        mask_pn = mask[row+1]
-                        if mask_pn[col] == 0:
-                            ending_p[col] = 1
-                elif angle_p[col] >= PI/8 and angle_p[col] < 3*PI/8:
-                    parent_p[col][0] = 1
-                    parent_p[col][1] = 1
-                    if row+1 <= height-1 and col+1 <= width-1:
-                        mask_pn = mask[row+1]
-                        if mask_pn[col+1] == 0:
-                            ending_p[col] = 1
-                elif angle_p[col] >= 3*PI/8 and angle_p[col] < 5*PI/8:
-                    parent_p[col][0] = 0
-                    parent_p[col][1] = 1
-                    if col+1 <= width-1:
-                        mask_pn = mask[row]
-                        if mask_pn[col+1] == 0:
-                            ending_p[col] = 1
-                elif angle_p[col] >= 5*PI/8 and angle_p[col] < 7*PI/8:
-                    parent_p[col][0] = -1
-                    parent_p[col][1] = 1
-                    if row-1 >= 0 and col+1 <= width-1:
-                        mask_pn = mask[row-1]
-                        if mask_pn[col+1] == 0:
-                            ending_p[col] = 1
-                elif angle_p[col] >= 7*PI/8 and angle_p[col] < 9*PI/8:
-                    parent_p[col][0] = -1
-                    parent_p[col][1] = 0
-                    if row-1 >= 0:
-                        mask_pn = mask[row-1]
-                        if mask_pn[col] == 0:
-                            ending_p[col] = 1
-                elif angle_p[col] >= 9*PI/8 and angle_p[col] < 11*PI/8:
-                    parent_p[col][0] = -1
-                    parent_p[col][1] = -1
-                    if row-1 >= 0 and col-1 >= 0:
-                        mask_pn = mask[row-1]
-                        if mask_pn[col-1] == 0:
-                            ending_p[col] = 1
-                elif angle_p[col] >= 11*PI/8 and angle_p[col] < 13*PI/8:
-                    parent_p[col][0] = 0
-                    parent_p[col][1] = -1
-                    if col-1 >= 0:
-                        mask_pn = mask[row]
-                        if mask_pn[col-1] == 0:
-                            ending_p[col] = 1
-                elif angle_p[col] >= 13*PI/8 and angle_p[col] < 15*PI/8:
-                    parent_p[col][0] = 1
-                    parent_p[col][1] = -1
-                    if row+1 <= height-1 and col-1 >= 0:
-                        mask_pn = mask[row+1]
-                        if mask_pn[col-1] == 0:
-                            ending_p[col] = 1
+            if mask[row][col] == 255:
+                if angle[row][col] < PI/8 or angle[row][col] >= 15*PI/8:
+                    parent[row][col] = [1,0]
+                    if row+1 <= height-1 and mask[row+1][col] == 0:
+                        ending[row][col] = 1
+                elif angle[row][col] >= PI/8 and angle[row][col] < 3*PI/8:
+                    parent[row][col] = [1,1]
+                    if row+1 <= height-1 and col+1 <= width-1 and mask[row+1][col+1] == 0:
+                        ending[row][col] = 1
+                elif angle[row][col] >= 3*PI/8 and angle[row][col] < 5*PI/8:
+                    parent[row][col] = [0,1]
+                    if col+1 <= width-1 and mask[row][col+1] == 0:
+                        ending[row][col] = 1
+                elif angle[row][col] >= 5*PI/8 and angle[row][col] < 7*PI/8:
+                    parent[row][col] = [-1,1]
+                    if row-1 >= 0 and col+1 <= width-1 and mask[row-1][col+1] == 0:
+                        ending[row][col] = 1
+                elif angle[row][col] >= 7*PI/8 and angle[row][col] < 9*PI/8:
+                    parent[row][col] = [-1,0]
+                    if row-1 >= 0 and mask[row-1][col] == 0:
+                        ending[row][col] = 1
+                elif angle[row][col] >= 9*PI/8 and angle[row][col] < 11*PI/8:
+                    parent[row][col] = [-1,-1]
+                    if row-1 >= 0 and col-1 >= 0 and mask[row-1][col-1] == 0:
+                        ending[row][col] = 1
+                elif angle[row][col] >= 11*PI/8 and angle[row][col] < 13*PI/8:
+                    parent[row][col] = [0,-1]
+                    if col-1 >= 0 and mask[row][col-1] == 0:
+                        ending[row][col] = 1
+                elif angle[row][col] >= 13*PI/8 and angle[row][col] < 15*PI/8:
+                    parent[row][col] = [1,-1]
+                    if row+1 <= height-1 and col-1 >= 0 and mask[row+1][col-1] == 0:
+                        ending[row][col] = 1
 
     p = Coordinate()
     pc = Coordinate()
@@ -293,39 +265,30 @@ def process_output(image, output, raw_img, threshold, min_area):
     # get depth each pixel in text instance
     sup_idx = 1
     for row in range(0, height):
-        mask_p = mask[row]
-        visited_p = visited[row]
         for col in range(0, width):
-            if mask_p[col] == 255 and visited_p[col] == 0:
+            if mask[row][col] == 255 and visited[row][col] == 0:
                 p.x = row
                 p.y = col
                 Q = queue.Queue()
                 Q.put(p)
                 while not Q.empty():
                     pc = Q.get()
-                    parent_pc = parent[pc.x]
-                    visited_pc = visited[pc.x]
-                    dict_pc = dict_id[pc.x]
-                    dict_pc[pc.y][0] = sup_idx
-                    visited_pc[pc.y] = 1
+                    dict_id[pc.x][pc.y][0] = sup_idx
+                    visited[pc.x][pc.y] = 1
                     for dx in range(-1, 2):
                         for dy in range(-1, 2):
                             pt.x = pc.x + dx
                             pt.y = pc.y + dy
                             if pt.x >= 0 and pt.x <= height-1 and pt.y >= 0 and pt.y <= width-1:
-                                parent_pt = parent[pt.x]
-                                visited_pt = visited[pt.x]
-                                dict_pt = dict_id[pt.x]
-                                if visited_pt[pt.y] == 0 and (parent_pt[pt.y][0] != 0 or parent_pt[pt.y][1] != 0):
-                                    if parent_pt[pt.y][0] == -1*dx and parent_pt[pt.y][1] == -1*dy:
+                                if visited[pt.x][pt.y] == 0 and (parent[pt.x][pt.y][0] != 0 or parent[pt.x][pt.y][1] != 0):
+                                    if parent[pt.x][pt.y][0] == -1*dx and parent[pt.x][pt.y][1] == -1*dy:
                                         Q.put(pt.copy())
-                                        dict_pc[pc.y][1] = max(
-                                            dict_pc[pc.y][1], dict_pt[pt.y][1]+1)
-                                    elif parent_pc[pc.y][0] == 1*dx and parent_pc[pc.y][1] == 1*dy:
+                                        dict_id[pc.x][pc.y][1] = max(
+                                            dict_id[pc.x][pc.y][1], dict_id[pt.x][pt.y][1]+1)
+                                    elif parent[pc.x][pc.y][0] == 1*dx and parent[pc.x][pc.y][1] == 1*dy:
                                         Q.put(pt.copy())
-                                        dict_pt[pt.y][1] = max(
-                                            dict_pt[pt.y][1], dict_pc[pc.y][1]+1)
-                    # Q.remove(Q[0])
+                                        dict_id[pt.x][pt.y][1] = max(
+                                            dict_id[pt.x][pt.y][1], dict_id[pc.x][pc.y][1]+1)
                 sup_idx += 1
 
     element = cv2.getStructuringElement(cv2.MORPH_RECT, (3, 3))
@@ -334,17 +297,13 @@ def process_output(image, output, raw_img, threshold, min_area):
         ending, element, iterations=5).astype(np.float32)
     # dilate ending
     for row in range(0, height):
-        ending_p = ending[row]
-        parent_p = parent[row]
-        dict_p = dict_id[row]
         for col in range(0, width):
-            if ending_p[col] == 1:
-                for dilDepth in range(1, min(int(1*dict_p[col][1]-16), 12)+1):
-                    p.x = row+int(parent_p[col][0]*dilDepth)
-                    p.y = col+int(parent_p[col][1]*dilDepth)
+            if ending[row][col] == 1:
+                for dilDepth in range(1, min(int(1*dict_id[row][col][1]-16), 12)+1):
+                    p.x = row+int(parent[row][col][0]*dilDepth)
+                    p.y = col+int(parent[row][col][1]*dilDepth)
                     if p.x >= 0 and p.x <= height-1 and pt.y >= 0 and pt.y <= width-1:
-                        merged_ending_p = merged_ending[p.x]
-                        merged_ending_p[p.y] = 1
+                        merged_ending[p.x][p.y] = 1
 
     # find connected Components
     cctmp = merged_ending.astype(np.uint8)
@@ -357,16 +316,12 @@ def process_output(image, output, raw_img, threshold, min_area):
     stat = np.zeros((ccnum, 8), np.int32)
     # calculate num stat each label and assign label each sup_idx
     for row in range(0, height):
-        ending_p = ending[row]
-        parent_p = parent[row]
-        label_p = label[row]
-        dict_p = dict_id[row]
         for col in range(0, width):
-            if ending_p[col] == 1:
-                dx = int(parent_p[col][0])
-                dy = int(parent_p[col][1])
-                cc_idx = int(label_p[col])
-                sup_map_cc[int(dict_p[col][0])] = cc_idx
+            if ending[row][col] == 1:
+                dx = int(parent[row][col][0])
+                dy = int(parent[row][col][1])
+                cc_idx = int(label[row][col])
+                sup_map_cc[int(dict_id[row][col][0])] = cc_idx
                 if dx == 1 and dy == 0:  # down
                     stat[cc_idx][0] += 1
                 if dx == 1 and dy == 1:  # down right
@@ -408,14 +363,12 @@ def process_output(image, output, raw_img, threshold, min_area):
 
     # filter candidate
     for row in range(0, height):
-        dict_p = dict_id[row]
-        label_p = label[row]
         for col in range(0, width):
-            if label_p[col] == 0:
-                label_p[col] = cc_map_filted[int(
-                    sup_map_cc[int(dict_p[col][0])])]
+            if label[row][col] == 0:
+                label[row][col] = cc_map_filted[int(
+                    sup_map_cc[int(dict_id[row][col][0])])]
             else:
-                label_p[col] = cc_map_filted[int(label_p[col])]
+                label[row][col] = cc_map_filted[int(label[row][col])]
 
     res = np.zeros((height, width), np.float32)
     element_ = cv2.getStructuringElement(cv2.MORPH_RECT, (11, 11))
