@@ -17,9 +17,9 @@ def argument_parser():
                         help='number of data loading workers (tips: 4 or 8 times number of gpus)')
     parser.add_argument('--split-id', type=int, default=0,
                         help='split index (note: 0-based)')
-    parser.add_argument('--height', type=int, default=672,
+    parser.add_argument('--height', type=int, default=384,
                         help='height of an image')
-    parser.add_argument('--width', type=int, default=512,
+    parser.add_argument('--width', type=int, default=384,
                         help='width of an image')
     parser.add_argument('--train-sampler', type=str, default='RandomSampler',
                         help='sampler for trainloader')
@@ -43,7 +43,7 @@ def argument_parser():
     # ************************************************************
     parser.add_argument('--optim', type=str, default='adam',
                         help='optimization algorithm (see optimizers.py)')
-    parser.add_argument('--lr', default=0.0003, type=float,
+    parser.add_argument('--lr', default=0.0001, type=float,
                         help='initial learning rate')
     parser.add_argument('--weight-decay', default=5e-06, type=float,
                         help='weight decay')   

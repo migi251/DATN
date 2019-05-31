@@ -36,21 +36,21 @@ args = parser.parse_args()
 
 def main():
     global args
-    glob_min_loss = 0.2  # 0.0291
-    args.source_names = ['total-text']
-    args.target_names = ['total-text']
-    args.height = 512
-    args.width = 512
-    args.negative_ratio = 3
-    args.optim = 'amsgrad'
-    args.lr = 1e-4
-    args.max_epoch = 100
-    args.stepsize = [40]
-    args.train_batch_size = 2
-    args.workers = 8
-    args.arch = 'vgg16'
-    args.save_dir = 'log/se_resnext101_32x4d-final-text-net-total-text-no-randomcrop'
-    args.gpu_devices = '0'
+    glob_min_loss = 1
+    # args.source_names = ['total-text']
+    # args.target_names = ['total-text']
+    # args.height = 384
+    # args.width = 384
+    # args.negative_ratio = 3
+    # args.optim = 'amsgrad'
+    # args.lr = 1e-4
+    # args.max_epoch = 100
+    # args.stepsize = [40]
+    # args.train_batch_size = 2
+    # args.workers = 8
+    # args.arch = 'se_resnext101_32x4d'
+    # args.save_dir = 'log/se_resnext101_32x4d-final-text-net-total-text-no-randomcrop'
+    # args.gpu_devices = '0'
     # args.resume = 'log/se_resnext101_32x4d-final-text-net-total-text-no-randomcrop/quick_save_checkpoint_ep6.pth.tar'
     # args.load_weights = 'log/se_resnext101_32x4d-final-text-net-total-text-lr-1e-5/quick_save_checkpoint_ep56.pth.tar'
     set_random_seed(args.seed)
@@ -196,8 +196,8 @@ def train(epoch, model, criterion, optimizer, trainloader, use_gpu, fixbase=Fals
     end = time.time()
 
     for batch_idx, (imgs, vecs, weights) in enumerate(trainloader):
-        if batch_idx < start_idx:
-            continue
+        # if batch_idx < start_idx:
+            # continue
         data_time.update(time.time() - end)
 
         if use_gpu:
@@ -230,10 +230,10 @@ def train(epoch, model, criterion, optimizer, trainloader, use_gpu, fixbase=Fals
                 state_dict = model.module.state_dict()
             else:
                 state_dict = model.state_dict()
-            optimizer_state_dict = optimizer.state_dict()
+            # optimizer_state_dict = optimizer.state_dict()
             save_checkpoint({
                 'state_dict': state_dict,
-                'optimizer': optimizer_state_dict,
+                # 'optimizer': optimizer_state_dict,
                 'rank1': 0,
                 'epoch': epoch,
                 'step': batch_idx,
