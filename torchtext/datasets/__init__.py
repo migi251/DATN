@@ -1,11 +1,17 @@
 from .total_text import TotalText
 from .pdf_text import PDFText
 from .synth_text_2 import SynthText_2
+from .ctw1500 import CTW1500
+from .ic13 import IC13
+from .ic15 import IC15
 
 __detect_factory = {
     'total-text': TotalText,
     'pdf-text': PDFText,
-    'synth-text-2': SynthText_2
+    'synth-text-2': SynthText_2,
+    'ctw1500': CTW1500,
+    'IC13': IC13,
+    'IC15':IC15
 }
 
 
