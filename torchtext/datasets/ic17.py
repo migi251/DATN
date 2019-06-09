@@ -68,7 +68,7 @@ class IC17(BaseImageDataset):
         :return: (list), TextInstance
         """
         
-        polygons = np.load(txt_path)
+        polygons = np.load(txt_path, allow_pickle=True)
         return list(polygons)
 
 
